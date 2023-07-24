@@ -106,22 +106,43 @@
         return dfs(numbers, target);
     }
 
-    function generateRandomNumber(min, max) {
+    function generateRandomUniform(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function generateNumberWithProbability() {
+        const randomValue = Math.random();
+
+        if (randomValue < 0.1) {
+            // [0, 1/10] -> 1/10
+            return 0;
+        } else if (randomValue < 0.3) {
+            // [1/10, 3/10] -> 2/10
+            return 1;
+        } else if (randomValue < 0.7) {
+            // [3/10, 7/10] -> 4/10
+            return 2;
+        } else if (randomValue < 0.9) {
+            // [7/10, 9/10] -> 2/10
+            return 3;
+        } else {
+            // [9/10, 10/10] -> 1/10
+            return 4;
+        }
     }
 
     function shuffleArray(array) {
         for (let i = array.length - 1; i > 0; i--) {
-            const j = generateRandomNumber(0, i);
+            const j = generateRandomUniform(0, i);
             [array[i], array[j]] = [array[j], array[i]];
         }
         return array;
     }
 
     function generateNumbers() {
-        const target = generateRandomNumber(100, 999);
+        const target = generateRandomUniform(100, 999);
 
-        const large_count = generateRandomNumber(0, 4);
+        const large_count = generateNumberWithProbability();
         let large = [25, 50, 75, 100];
         let small = [1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9];
 
