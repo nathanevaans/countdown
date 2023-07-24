@@ -59,6 +59,10 @@
     function canGetTarget(numbers, target) {
         const memo = new Map();
 
+        function isInteger(value) {
+            return Number.isInteger(value);
+        }
+
         function dfs(numbers, target) {
             if (numbers.length === 0) {
                 return false;
@@ -78,12 +82,16 @@
             for (let i = 0; i < numbers.length; i++) {
                 for (let j = i + 1; j < numbers.length; j++) {
                     const newNumbers = numbers.filter((_, k) => k !== i && k !== j);
+                    const sum = numbers[i] + numbers[j];
+                    const diff = numbers[i] - numbers[j];
+                    const mul = numbers[i] * numbers[j];
+                    const div = numbers[j] !== 0 ? numbers[i] / numbers[j] : 0.5;
 
                     if (
-                        dfs(newNumbers.concat(numbers[i] + numbers[j]), target) ||
-                        dfs(newNumbers.concat(numbers[i] - numbers[j]), target) ||
-                        dfs(newNumbers.concat(numbers[i] * numbers[j]), target) ||
-                        (numbers[j] !== 0 && dfs(newNumbers.concat(numbers[i] / numbers[j]), target))
+                        (isInteger(sum) && dfs(newNumbers.concat(sum), target)) ||
+                        (isInteger(diff) && dfs(newNumbers.concat(diff), target)) ||
+                        (isInteger(mul) && dfs(newNumbers.concat(mul), target)) ||
+                        (isInteger(div) && dfs(newNumbers.concat(div), target))
                     ) {
                         memo.set(key, true);
                         return true;
