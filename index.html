@@ -1,87 +1,135 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>Random Number Generator</title>
-  <style>
-    body {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background-color: #1a1a1a;
-      color: #f0f0f0;
-      height: 100vh; 
-    }
+    <title>Random Number Generator</title>
+    <style>
+        body, html {
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
 
-    .container {
-      text-align: center;
-    }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1a1a1a;
+            color: #f0f0f0;
+        }
 
-    #target {
-      font-size: 200px;
-      font-weight: bold;
-      margin-bottom: 20px;
-    }
+        .container {
+            text-align: center;
+        }
 
-    #numberList {
-      font-size: 75px;
-      margin-bottom: 30px; 
-    }
+        #target {
+            font-size: 200px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
 
-    button {
-      padding: 15px 25px;
-      font-size: 75px;
-      cursor: pointer;
-      border: none;
-      background-color: #4CAF50;
-      color: #f0f0f0;
-      border-radius: 30px;
-    }
+        #numberList {
+            font-size: 75px;
+            margin-bottom: 30px;
+        }
 
-    button:hover {
-      background-color: #45a049;
-    }
-  </style>
+        button {
+            padding: 15px 25px;
+            font-size: 75px;
+            cursor: pointer;
+            border: none;
+            background-color: #4CAF50;
+            color: #f0f0f0;
+            border-radius: 30px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
 </head>
 
 <body>
 <div class="container">
-  <div id="target"></div>
-  <div id="numberList"></div>
-  <button onclick="generateNumbers();">Generate Numbers</button>
+    <div id="target"></div>
+    <div id="numberList"></div>
+    <button onclick="generateNumbers();">Generate Numbers</button>
 </div>
 
 <script>
-  function generateRandomNumber(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-  }
+    function canGetTarget(numbers, target) {
+        const memo = new Map();
 
-  function shuffleArray(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = generateRandomNumber(0, i);
-      [array[i], array[j]] = [array[j], array[i]];
+        function dfs(numbers, target) {
+            if (numbers.length === 0) {
+                return false;
+            }
+
+            const key = numbers.join(',') + '-' + target;
+            if (memo.has(key)) {
+                return memo.get(key);
+            }
+
+            if (numbers.length === 1) {
+                const result = numbers[0] === target;
+                memo.set(key, result);
+                return result;
+            }
+
+            for (let i = 0; i < numbers.length; i++) {
+                for (let j = i + 1; j < numbers.length; j++) {
+                    const newNumbers = numbers.filter((_, k) => k !== i && k !== j);
+
+                    if (
+                        dfs(newNumbers.concat(numbers[i] + numbers[j]), target) ||
+                        dfs(newNumbers.concat(numbers[i] - numbers[j]), target) ||
+                        dfs(newNumbers.concat(numbers[i] * numbers[j]), target) ||
+                        (numbers[j] !== 0 && dfs(newNumbers.concat(numbers[i] / numbers[j]), target))
+                    ) {
+                        memo.set(key, true);
+                        return true;
+                    }
+                }
+            }
+
+            memo.set(key, false);
+            return false;
+        }
+
+        return dfs(numbers, target);
     }
-    return array;
-  }
 
-  function generateNumbers() {
-    document.getElementById("target").innerText = generateRandomNumber(100, 999);
+    function generateRandomNumber(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
 
-    const large_count = generateRandomNumber(0, 4);
-    let large = [25, 50, 75, 100];
-    let small = [1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9];
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = generateRandomNumber(0, i);
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
 
-    large = shuffleArray(large);
-    small = shuffleArray(small);
+    function generateNumbers() {
+        const target = generateRandomNumber(100, 999);
 
-    large = large.slice(0, large_count);
-    small = small.slice(0, 6 - large_count);
+        const large_count = generateRandomNumber(0, 4);
+        let large = [25, 50, 75, 100];
+        let small = [1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9];
 
-    document.getElementById("numberList").innerText = large.concat(small).join(", ");
-  }
+        large = shuffleArray(large).slice(0, large_count);
+        small = shuffleArray(small).slice(0, 6 - large_count);
+        const numbers = large.concat(small);
 
-  generateNumbers()
+        if (!canGetTarget(numbers, target)) {
+            generateNumbers();
+        } else {
+            document.getElementById("target").innerText = target;
+            document.getElementById("numberList").innerText = numbers.join(", ");
+        }
+    }
+
+    generateNumbers();
 </script>
 </body>
 </html>
