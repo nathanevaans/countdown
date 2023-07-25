@@ -148,7 +148,7 @@
 
         large = shuffleArray(large).slice(0, large_count);
         small = shuffleArray(small).slice(0, 6 - large_count);
-        const numbers = large.concat(small);
+        const numbers = large.concat(small).sort((a, b) => a - b);
 
         if (!canGetTarget(numbers, target)) {
             generateNumbers();
